@@ -2,37 +2,42 @@ networks:
   loki:
 services:
   app:
-    image: openjdk:21-slim
     container_name: mcs-app
     build:
-      context: ./docker
-      dockerfile: Dockerfile
+      context: .
     ports:
       - "8081:8080"
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/medicaldb
-      SPRING_DATASOURCE_USERNAME: postgres
-      SPRING_DATASOURCE_PASSWORD: postgres
-      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/medicaldb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
     depends_on:
-      - db
-    volumes:
-      - ./target:/app/target
-      - ./logs:/app/logs
+      db:
+        condition: service_healthy
 
   db:
+    container_name: mcs-db
     image: postgres:latest
-    container_name: postgres_db
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: medicaldb
-    ports:
-      - "5433:5432"
+    restart: always
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=medicaldb
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - 5433:5432
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   loki:
+    container_name: loki-container
     image: grafana/loki:latest
     ports:
       - "3100:3100"
@@ -40,6 +45,7 @@ services:
     networks:
       - loki
   grafana:
+    container_name: grafana-container
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_AUTH_ANONYMOUS_ENABLED=true
@@ -70,4 +76,4 @@ services:
       - loki
 
 volumes:
-  pgdata:
+  db-data:
