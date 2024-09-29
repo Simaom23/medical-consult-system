@@ -93,7 +93,6 @@ INSERT INTO consult_symptom (consult_id, symptom_id) VALUES
     (2, 4), -- Consult 2 has Symptom 4
     (2, 5), -- Consult 2 has Symptom 5
     (3, 6), -- Consult 3 has Symptom 6
-    (3, 7), -- Consult 3 has Symptom 7
     (4, 6), -- Consult 4 has Symptom 6
     (4, 7), -- Consult 4 has Symptom 7
     (5, 8), -- Consult 5 has Symptom 8

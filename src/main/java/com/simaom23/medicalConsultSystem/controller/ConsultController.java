@@ -24,7 +24,6 @@ public class ConsultController {
     @PostMapping
     @Operation(summary = "Create a new consult", description = "Creates a new consult for a patient.")
     public ResponseEntity<Consult> createConsult(@RequestBody CreateConsultDTO consultDTO) {
-        System.out.println("aquiii" + consultDTO);
         Consult consult = consultService.createConsult(consultDTO);
         return ResponseEntity.ok(consult);
     }
