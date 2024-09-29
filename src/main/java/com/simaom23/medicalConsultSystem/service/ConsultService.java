@@ -44,7 +44,7 @@ public class ConsultService {
         @Autowired
         private SymptomRepository symptomRepository;
 
-        public Consult createConsult(CreateConsultDTO consultDTO) {
+        public ConsultResponseDTO createConsult(CreateConsultDTO consultDTO) {
                 Doctor doctor = doctorRepository.findById(consultDTO.getDoctorId())
                                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
                                                 String.format("Doctor with ID %d not found.",
@@ -76,7 +76,13 @@ public class ConsultService {
                         consult.setSymptoms(symptoms);
                 }
 
-                return consultRepository.save(consult);
+                Consult savedConsult = consultRepository.save(consult);
+                ConsultResponseDTO consultResponseDTO = new ConsultResponseDTO();
+                consultResponseDTO.setConsultId(savedConsult.getId());
+                consultResponseDTO.setDoctor(savedConsult.getDoctor().getName());
+                consultResponseDTO.setSpecialty(savedConsult.getSpecialty().getName());
+
+                return consultResponseDTO;
         }
 
         public PatientConsultResponseDTO getPatientConsultsAndSymptoms(Long patientId) {

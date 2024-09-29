@@ -2,9 +2,9 @@ package com.simaom23.medicalConsultSystem.controller;
 
 import org.springframework.web.bind.annotation.*;
 
+import com.simaom23.medicalConsultSystem.dto.consult.ConsultResponseDTO;
 import com.simaom23.medicalConsultSystem.dto.consult.CreateConsultDTO;
 import com.simaom23.medicalConsultSystem.dto.patient.PatientConsultResponseDTO;
-import com.simaom23.medicalConsultSystem.entity.Consult;
 import com.simaom23.medicalConsultSystem.service.ConsultService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -23,8 +23,8 @@ public class ConsultController {
 
     @PostMapping
     @Operation(summary = "Create a new consult", description = "Creates a new consult for a patient.")
-    public ResponseEntity<Consult> createConsult(@RequestBody CreateConsultDTO consultDTO) {
-        Consult consult = consultService.createConsult(consultDTO);
+    public ResponseEntity<ConsultResponseDTO> createConsult(@RequestBody CreateConsultDTO consultDTO) {
+        ConsultResponseDTO consult = consultService.createConsult(consultDTO);
         return ResponseEntity.ok(consult);
     }
 
