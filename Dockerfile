@@ -4,6 +4,7 @@ FROM eclipse-temurin:21 AS builder
 WORKDIR /app
 
 # Copy Maven wrapper and pom.xml
+COPY .mvn/ .mvn
 COPY mvnw pom.xml ./
 
 # Copy the source code
