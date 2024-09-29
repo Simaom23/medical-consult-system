@@ -19,17 +19,18 @@ import java.time.LocalDateTime;
 @ControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
-    @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex,
-            HttpServletRequest request) {
-        ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
-                LocalDateTime.now(),
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                ex.getMessage(),
-                request.getRequestURI());
-        return new ResponseEntity<>(errorResponseDTO,
-                HttpStatus.INTERNAL_SERVER_ERROR);
-    }
+        @ExceptionHandler(Exception.class)
+        @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
+        public ResponseEntity<ErrorResponseDTO> handleGenericException(Exception ex,
+                        HttpServletRequest request) {
+
+                ErrorResponseDTO errorResponseDTO = new ErrorResponseDTO(
+                                LocalDateTime.now(),
+                                HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
+                                ex.getMessage(),
+                                request.getRequestURI());
+                return new ResponseEntity<>(errorResponseDTO,
+                                HttpStatus.INTERNAL_SERVER_ERROR);
+        }
 }

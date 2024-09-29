@@ -96,6 +96,21 @@ curl -X GET "http://localhost:8081/api/patients?page=0&size=10&age=30&name=John"
 curl -X GET http://localhost:8081/api/specialties/top
 ```
 
+### Accessing Grafana and Viewing Logs
+
+Once the application is running, you can access Grafana at:
+
+```
+http://localhost:3100
+```
+
+Grafana is integrated with Loki for log management. To explore the logs of the application:
+
+1. Navigate to **Grafana** at the above URL.
+2. In the **Data Sources** section, click on **Loki**.
+3. In the top-right corner, click on **Explore** to start viewing the logs.
+4. You can filter and search through the logs for specific application events or errors, providing you with real-time insights into the application's behavior.
+
 ### Stopping the Application
 
 To stop the running application, use:

@@ -1,5 +1,3 @@
-networks:
-  loki:
 services:
   app:
     container_name: mcs-app
@@ -14,6 +12,8 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - SPRING_SQL_INIT_MODE=always
+      - SPRING_APPLICATION_NAME=mcs
     depends_on:
       db:
         condition: service_healthy
@@ -37,15 +37,11 @@ services:
       retries: 5
 
   loki:
-    container_name: loki-container
     image: grafana/loki:latest
     ports:
       - "3100:3100"
     command: -config.file=/etc/loki/local-config.yaml
-    networks:
-      - loki
   grafana:
-    container_name: grafana-container
     environment:
       - GF_PATHS_PROVISIONING=/etc/grafana/provisioning
       - GF_AUTH_ANONYMOUS_ENABLED=true
@@ -72,8 +68,6 @@ services:
     image: grafana/grafana:latest
     ports:
       - "3000:3000"
-    networks:
-      - loki
 
 volumes:
   db-data:
