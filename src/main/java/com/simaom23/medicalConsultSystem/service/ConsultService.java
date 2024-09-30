@@ -25,9 +25,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Service
 public class ConsultService {
+
+        // Logger instance
+        private static final Logger logger = LoggerFactory.getLogger(ConsultService.class);
 
         @Autowired
         private ConsultRepository consultRepository;
@@ -45,20 +50,32 @@ public class ConsultService {
         private SymptomRepository symptomRepository;
 
         public ConsultResponseDTO createConsult(CreateConsultDTO consultDTO) {
+                logger.info("Creating a new consult for Doctor ID: {}, Patient ID: {}, Specialty ID: {}",
+                                consultDTO.getDoctorId(), consultDTO.getPatientId(), consultDTO.getSpecialtyId());
+
                 Doctor doctor = doctorRepository.findById(consultDTO.getDoctorId())
-                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                                String.format("Doctor with ID %d not found.",
-                                                                consultDTO.getDoctorId())));
+                                .orElseThrow(() -> {
+                                        logger.error("Doctor with ID {} not found.", consultDTO.getDoctorId());
+                                        return new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                                        String.format("Doctor with ID %d not found.",
+                                                                        consultDTO.getDoctorId()));
+                                });
 
                 Patient patient = patientRepository.findById(consultDTO.getPatientId())
-                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                                String.format("Patient with ID %d not found.",
-                                                                consultDTO.getPatientId())));
+                                .orElseThrow(() -> {
+                                        logger.error("Patient with ID {} not found.", consultDTO.getPatientId());
+                                        return new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                                        String.format("Patient with ID %d not found.",
+                                                                        consultDTO.getPatientId()));
+                                });
 
                 Specialty specialty = specialtyRepository.findById(consultDTO.getSpecialtyId())
-                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST,
-                                                String.format("Specialty with ID %d not found.",
-                                                                consultDTO.getSpecialtyId())));
+                                .orElseThrow(() -> {
+                                        logger.error("Specialty with ID {} not found.", consultDTO.getSpecialtyId());
+                                        return new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                                        String.format("Specialty with ID %d not found.",
+                                                                        consultDTO.getSpecialtyId()));
+                                });
 
                 Consult consult = new Consult();
                 consult.setDoctor(doctor);
@@ -66,10 +83,13 @@ public class ConsultService {
                 consult.setSpecialty(specialty);
 
                 if (consultDTO.getSymptomIds() != null && !consultDTO.getSymptomIds().isEmpty()) {
+                        logger.info("Adding symptoms to consult: {}", consultDTO.getSymptomIds());
+
                         List<Symptom> symptoms = symptomRepository.findAllById(consultDTO.getSymptomIds());
                         Set<Long> symptomIds = new HashSet<>(consultDTO.getSymptomIds());
 
                         if (symptoms.size() != symptomIds.size()) {
+                                logger.error("One or more symptom IDs not found.");
                                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                                                 "One or more symptom IDs not found.");
                         }
@@ -77,6 +97,8 @@ public class ConsultService {
                 }
 
                 Consult savedConsult = consultRepository.save(consult);
+                logger.info("Consult created successfully with ID: {}", savedConsult.getId());
+
                 ConsultResponseDTO consultResponseDTO = new ConsultResponseDTO();
                 consultResponseDTO.setConsultId(savedConsult.getId());
                 consultResponseDTO.setDoctor(savedConsult.getDoctor().getName());
@@ -86,9 +108,14 @@ public class ConsultService {
         }
 
         public PatientConsultResponseDTO getPatientConsultsAndSymptoms(Long patientId) {
+                logger.info("Fetching consults and symptoms for patient ID: {}", patientId);
+
                 Patient patient = patientRepository.findById(patientId)
-                                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                                String.format("Patient with ID %d not found.", patientId)));
+                                .orElseThrow(() -> {
+                                        logger.error("Patient with ID {} not found.", patientId);
+                                        return new ResponseStatusException(HttpStatus.NOT_FOUND,
+                                                        String.format("Patient with ID %d not found.", patientId));
+                                });
 
                 List<Consult> consults = consultRepository.findByPatient(patient);
 
@@ -113,6 +140,8 @@ public class ConsultService {
                 PatientConsultResponseDTO response = new PatientConsultResponseDTO();
                 response.setConsults(consultInfos);
                 response.setSymptoms(new ArrayList<>(symptomInfos));
+
+                logger.info("Successfully fetched consults and symptoms for patient ID: {}", patientId);
 
                 return response;
         }

@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configuration>        
-   <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
+<configuration>
+    <!-- Console Appender -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Loki Appender -->
+    <appender name="LOKI" class="com.github.loki4j.logback.Loki4jAppender">
         <http>
             <url>http://loki:3100/loki/api/v1/push</url>
         </http>
         <format>
             <label>
-                <pattern>app=${name},host=${HOSTNAME},level=%level</pattern>
+                <pattern>app=mcs,host=${HOSTNAME},level=%level</pattern>
                 <readMarkers>true</readMarkers>
             </label>
             <message>
@@ -20,10 +28,21 @@
                     }
                 </pattern>
             </message>
-         </format>
-     </appender>
-     
-     <root level="INFO">
+        </format>
+    </appender>
+
+    <!-- Root Logger Configuration for Console (Everything except HTTP and Services) -->
+    <root level="TRACE">
+        <appender-ref ref="CONSOLE" />
+    </root>
+
+    <!-- Logger for HTTP Requests (Spring Web or Servlet logs) -->
+    <logger name="org.springframework.web" level="TRACE" additivity="false">
         <appender-ref ref="LOKI" />
-     </root>
+    </logger>
+
+    <!-- Logger for Service Layer (Replace with your actual service package) -->
+    <logger name="com.simaom23.medicalConsultSystem.service" level="TRACE" additivity="false">
+        <appender-ref ref="LOKI" />
+    </logger>
 </configuration>

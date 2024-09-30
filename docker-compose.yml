@@ -12,7 +12,7 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
-      - SPRING_SQL_INIT_MODE=always
+      - SPRING_SQL_INIT_MODE=embedded
       - SPRING_APPLICATION_NAME=mcs
     depends_on:
       db:
