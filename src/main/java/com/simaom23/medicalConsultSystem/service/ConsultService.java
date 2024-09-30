@@ -14,6 +14,7 @@ import com.simaom23.medicalConsultSystem.repository.DoctorRepository;
 import com.simaom23.medicalConsultSystem.repository.PatientRepository;
 import com.simaom23.medicalConsultSystem.repository.SpecialtyRepository;
 import com.simaom23.medicalConsultSystem.repository.SymptomRepository;
+import com.simaom23.medicalConsultSystem.util.EntityMapper;
 
 import java.util.HashSet;
 import java.util.List;
@@ -30,8 +31,6 @@ import org.slf4j.LoggerFactory;
 
 @Service
 public class ConsultService {
-
-        // Logger instance
         private static final Logger logger = LoggerFactory.getLogger(ConsultService.class);
 
         @Autowired
@@ -99,11 +98,7 @@ public class ConsultService {
                 Consult savedConsult = consultRepository.save(consult);
                 logger.info("Consult created successfully with ID: {}", savedConsult.getId());
 
-                ConsultResponseDTO consultResponseDTO = new ConsultResponseDTO();
-                consultResponseDTO.setConsultId(savedConsult.getId());
-                consultResponseDTO.setDoctor(savedConsult.getDoctor().getName());
-                consultResponseDTO.setSpecialty(savedConsult.getSpecialty().getName());
-
+                ConsultResponseDTO consultResponseDTO = EntityMapper.toConsultResponseDTO(savedConsult);
                 return consultResponseDTO;
         }
 
@@ -119,22 +114,12 @@ public class ConsultService {
 
                 List<Consult> consults = consultRepository.findByPatient(patient);
 
-                List<ConsultResponseDTO> consultInfos = consults.stream().map(consult -> {
-                        ConsultResponseDTO info = new ConsultResponseDTO();
-                        info.setConsultId(consult.getId());
-                        info.setDoctor(consult.getDoctor().getName());
-                        info.setSpecialty(consult.getSpecialty().getName());
-                        return info;
-                }).collect(Collectors.toList());
+                List<ConsultResponseDTO> consultInfos = consults.stream().map(EntityMapper::toConsultResponseDTO)
+                                .collect(Collectors.toList());
 
                 Set<SymptomResponseDTO> symptomInfos = consults.stream()
                                 .flatMap(consult -> consult.getSymptoms().stream())
-                                .map(symptom -> {
-                                        SymptomResponseDTO info = new SymptomResponseDTO();
-                                        info.setSymptomId(symptom.getId());
-                                        info.setDescription(symptom.getDescription());
-                                        return info;
-                                })
+                                .map(EntityMapper::toSymptomResponseDTO)
                                 .collect(Collectors.toSet());
 
                 PatientConsultResponseDTO response = new PatientConsultResponseDTO();

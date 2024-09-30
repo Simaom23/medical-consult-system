@@ -11,11 +11,10 @@ import org.slf4j.LoggerFactory;
 import com.simaom23.medicalConsultSystem.dto.patient.PatientResponseDTO;
 import com.simaom23.medicalConsultSystem.entity.Patient;
 import com.simaom23.medicalConsultSystem.repository.PatientRepository;
+import com.simaom23.medicalConsultSystem.util.EntityMapper;
 
 @Service
 public class PatientService {
-
-    // Logger instance
     private static final Logger logger = LoggerFactory.getLogger(PatientService.class);
 
     @Autowired
@@ -38,12 +37,6 @@ public class PatientService {
 
         logger.info("Retrieved {} patients on page {} with page size {}", patientsPage.getTotalElements(), page, size);
 
-        return patientsPage.map(patient -> {
-            PatientResponseDTO dto = new PatientResponseDTO();
-            dto.setId(patient.getId());
-            dto.setName(patient.getName());
-            dto.setAge(patient.getAge());
-            return dto;
-        });
+        return patientsPage.map(EntityMapper::toPatientResponseDTO);
     }
 }
